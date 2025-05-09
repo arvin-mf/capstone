@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('show-subjects-btn').addEventListener('click', async () => {
         try {
-            const res = await fetch('/api/subjects');
+            const res = await fetch('/api/subjects/devices');
             const data = await res.json();
-            if (!data.success) {
+            if (!data.status) {
                 throw new Error('Gagal mengambil data dari database');
             }
 
@@ -13,16 +13,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const s = document.createElement('div');
                 s.classList.add('subject-row');
                 
+                const device = document.createElement('div');
+                device.textContent = subject.device_id;
+                device.classList.add('subject-data');
+
                 const name = document.createElement('div');
                 name.textContent = subject.name;
                 name.classList.add('subject-data');
+                
+                const isFatigued = document.createElement('div');
+                isFatigued.textContent = subject.is_fatigued;
+                isFatigued.classList.add('subject-data');
 
-                const is_fatigued = document.createElement('div');
-                is_fatigued.textContent = subject.is_fatigued;
-                is_fatigued.classList.add('subject-data');
+                const createdAt = document.createElement('div');
+                createdAt.textContent = new Date(subject.created_at).toLocaleString();
+                createdAt.classList.add('subject-data');
 
+                s.appendChild(device);
                 s.appendChild(name);
-                s.appendChild(is_fatigued);
+                s.appendChild(isFatigued);
+                s.appendChild(createdAt);
 
                 list.appendChild(s);
             });
