@@ -56,7 +56,7 @@ func InitMQTTClient() mqtt.Client {
 	client := mqtt.NewClient(o)
 
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatal("Failed to connect to broker")
+		log.Fatalf("Failed to connect to broker: %v", token.Error())
 	}
 
 	return client

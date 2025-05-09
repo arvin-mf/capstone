@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/api/subjects');
             const data = await res.json();
+            if (!data.success) {
+                throw new Error('Gagal mengambil data dari database');
+            }
 
             const list = document.getElementById('subject-list');
             list.innerHTML = '';

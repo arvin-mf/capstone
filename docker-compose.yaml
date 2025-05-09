@@ -30,6 +30,20 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
 
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+    command: mosquitto -c /mosquitto-na.conf
+    volumes:
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+      - ./mosquitto-na.conf:/mosquitto-na.conf
+
 volumes:
   mysql-data:
   influxdb-data:
+  mosquitto-data:
+  mosquitto-log:
