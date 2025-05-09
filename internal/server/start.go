@@ -5,6 +5,7 @@ import (
 	"caps_influx/internal/handler"
 	"caps_influx/internal/repository"
 	"caps_influx/internal/service"
+	"net/http"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,7 @@ func StartEngine(e *gin.Engine, db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client
 
 func route(r *gin.Engine, sh *handler.SubjectHandler, dh *handler.DeviceHandler) {
 	apiRoute(r, sh, dh)
+	webRoute(r)
 }
 
 func initHandler(db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client) (*handler.SubjectHandler, *handler.DeviceHandler, service.SubscribeService) {
@@ -51,6 +53,22 @@ func initHandler(db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client) (*handler.Sub
 func apiRoute(r *gin.Engine, sh *handler.SubjectHandler, dh *handler.DeviceHandler) {
 	api := r.Group("/api")
 
+	corsMiddleware := func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization")
+		c.Header("Access-Control-Allow-Credentials", "true")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+
+	api.Use(corsMiddleware)
+
 	api.GET("/subjects", sh.GetAllSubjects)
 	api.POST("/subjects", sh.AddSubject)
 	api.DELETE("/subjects/:subjectId", sh.DeleteSubject)
@@ -58,4 +76,12 @@ func apiRoute(r *gin.Engine, sh *handler.SubjectHandler, dh *handler.DeviceHandl
 	api.GET("/devices", dh.GetAllDevices)
 	api.POST("/devices", dh.AddDevice)
 	api.DELETE("/devices/:deviceId", dh.DeleteDevice)
+}
+
+func webRoute(r *gin.Engine) {
+	r.Static("/static", "./web")
+	r.LoadHTMLFiles("./web/index.html")
+	r.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", nil)
+	})
 }

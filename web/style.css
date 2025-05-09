@@ -1,0 +1,47 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+    background: #60bbdd;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+#modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex; align-items: center; justify-content: center;
+}
+
+#close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+}
+
+.subject-row {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    background: white;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.subject-data {
+    flex: 1;
+    min-width: 120px;
+}
