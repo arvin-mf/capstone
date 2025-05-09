@@ -69,13 +69,3 @@ func (h *SubjectHandler) DeleteSubject(ctx *gin.Context) {
 
 	rsp.Success(ctx, http.StatusOK, subjectDeleteSuccess, nil)
 }
-
-func (h *SubjectHandler) GetSubjectsWithDevice(ctx *gin.Context) {
-	resp, err := h.serv.GetSubjectsWithDevice(ctx)
-	if err != nil {
-		rsp.FailOrError(ctx, http.StatusInternalServerError, subjectsFetchFailed, err)
-		return
-	}
-
-	rsp.Success(ctx, http.StatusOK, subjectsFetchSuccess, resp)
-}

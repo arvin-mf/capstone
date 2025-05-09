@@ -72,11 +72,11 @@ func apiRoute(r *gin.Engine, sh *handler.SubjectHandler, dh *handler.DeviceHandl
 	api.GET("/subjects", sh.GetAllSubjects)
 	api.POST("/subjects", sh.AddSubject)
 	api.DELETE("/subjects/:subjectId", sh.DeleteSubject)
-	api.GET("/subjects/devices", sh.GetSubjectsWithDevice)
 
 	api.GET("/devices", dh.GetAllDevices)
 	api.POST("/devices", dh.AddDevice)
 	api.DELETE("/devices/:deviceId", dh.DeleteDevice)
+	api.GET("/devices/subjects", dh.GetDevicesWithSubject)
 }
 
 func webRoute(r *gin.Engine) {

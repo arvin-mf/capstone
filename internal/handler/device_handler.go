@@ -69,3 +69,13 @@ func (h *DeviceHandler) DeleteDevice(ctx *gin.Context) {
 
 	rsp.Success(ctx, http.StatusOK, deviceDeleteSuccess, nil)
 }
+
+func (h *DeviceHandler) GetDevicesWithSubject(ctx *gin.Context) {
+	resp, err := h.serv.GetDevicesWithSubject(ctx)
+	if err != nil {
+		rsp.FailOrError(ctx, http.StatusInternalServerError, devicesFetchFailed, err)
+		return
+	}
+
+	rsp.Success(ctx, http.StatusOK, devicesFetchSuccess, resp)
+}

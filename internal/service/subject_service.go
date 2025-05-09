@@ -10,7 +10,6 @@ type SubjectService interface {
 	GetSubjects(ctx context.Context) ([]dto.SubjectResponse, error)
 	AddSubject(ctx context.Context, arg dto.SubjectCreateReq) error
 	DeleteSubject(ctx context.Context, subjectID int64) error
-	GetSubjectsWithDevice(ctx context.Context) ([]dto.SubjectWithDeviceResponse, error)
 }
 
 type subjectService struct {
@@ -52,13 +51,4 @@ func (s *subjectService) DeleteSubject(ctx context.Context, subjectID int64) err
 	}
 
 	return nil
-}
-
-func (s *subjectService) GetSubjectsWithDevice(ctx context.Context) ([]dto.SubjectWithDeviceResponse, error) {
-	subjects, err := s.subjectRepo.FindSubjectsWithDevice(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return dto.ToSubjectWithDeviceResponses(&subjects), nil
 }
