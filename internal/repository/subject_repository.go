@@ -16,6 +16,7 @@ type SubjectRepository interface {
 	SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error)
 	RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error)
 	FindSubjectByDeviceID(ctx context.Context, dID int64) (*Subject, error)
+	FindSubjectsWithDevice(ctx context.Context) ([]SubjectWithDevice, error)
 }
 
 type subjectRepository struct {
@@ -114,4 +115,30 @@ func (r *subjectRepository) FindSubjectByDeviceID(ctx context.Context, dID int64
 		return nil, err
 	}
 	return &row, nil
+}
+
+const findSubjectsWithDevice = `SELECT
+	ds.subject_id,
+	ds.device_id,
+	s.name,
+	s.is_fatigued,
+	ds.created_at
+FROM subjects s
+INNER JOIN device_subjects ds ON ds.subject_id = s.id
+ORDER BY s.name;`
+
+type SubjectWithDevice struct {
+	SubjectID  int64     `db:"subject_id"`
+	DeviceID   int64     `db:"device_id"`
+	Name       string    `db:"name"`
+	IsFatigued bool      `db:"is_fatigued"`
+	CreatedAt  time.Time `db:"created_at"`
+}
+
+func (r *subjectRepository) FindSubjectsWithDevice(ctx context.Context) ([]SubjectWithDevice, error) {
+	var rows []SubjectWithDevice
+	if err := r.db.Select(&rows, findSubjectsWithDevice); err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
