@@ -1,11 +1,19 @@
 body {
     font-family: sans-serif;
+    font-size: 24px;
     padding: 20px;
     background: #60bbdd;
+    width: 100vw;
 }
 
 .hidden {
     visibility: hidden;
+}
+
+#show-subjects-btn {
+    width: 200px;
+    height: 40px;
+    /* padding: 8px 12px; */
 }
 
 #modal {
@@ -39,27 +47,37 @@ body {
     flex-direction: column;
 }
 
-#subject-header {
+.header {
     display: flex;
     gap: 20px;
-    padding: 10px;
-    background: white;
-    margin: 12px;
+    padding: 10px 0;
+    margin: 12px 0;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
 }
 
-.subject-row {
+.header-column,
+.subject-data,
+.device-subject-data {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 20px;
+}
+
+.subject-row,
+.device-subject-row {
     display: flex;
     gap: 20px;
-    padding: 10px;
+    padding: 10px 0;
+    margin: 12px 0;
     background: white;
-    margin: 12px;
     border: 0.5px solid #444;
 }
 
-.subject-data {
-    flex: 1;
-    min-width: 120px;
-    padding: 8px;
-    padding-left: 20px;
-    border: 1px solid #ccc;
+#device-subjects {
+    margin-top: 80px;
+}
+
+.device-subject-row.no-subject {
+    background-color: #ef2;
 }

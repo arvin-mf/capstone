@@ -7,19 +7,30 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <button id="show-subjects-btn">Lihat Semua Subject</button>
+  <button id="show-subjects-btn">Lihat Semua Subyek</button>
 
   <div id="modal" class="hidden">
     <div class="modal-content">
       <span id="close-modal">&times;</span>
-      <h2>Data Pengguna Alat</h2>
-      <div id="subject-header">
-        <div class="subject-data">Nomor Alat</div>
-        <div class="subject-data">Nama Pengguna</div>
-        <div class="subject-data">Status Kelelahan</div>
-        <div class="subject-data">Waktu Mulai Memakai</div>
+      <h2>Data Subyek</h2>
+      <div class="header">
+        <div class="header-column">Nama Subyek</div>
+        <div class="header-column">Waktu Mulai Memakai</div>
       </div>
-      <ul id="subject-list"></ul>
+      <div id="subject-list">
+      </div>
+    </div>
+  </div>
+
+  <div id="device-subjects">
+    <h2>Status Subyek</h2>
+    <div class="header">
+      <div class="header-column">Nomor Alat</div>
+      <div class="header-column">Nama Pengguna</div>
+      <div class="header-column">Status Kelelahan</div>
+      <div class="header-column">Waktu Mulai Memakai</div>
+    </div>
+    <div id="device-subject-list">
     </div>
   </div>
 
