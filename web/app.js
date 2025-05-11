@@ -37,6 +37,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('modal').classList.add('hidden');
     });
 
+    document.getElementById('add-subject-btn').addEventListener('click', () => {
+        document.getElementById('subject-form-container').classList.toggle('hidden');
+    });
+
+    document.getElementById('submit-subject-btn').addEventListener('click', () => {
+        const name = document.getElementById('subject-name').value.trim();
+
+        if (!name) {
+            alert('Nama tidak boleh kosong!');
+            return;
+        }
+
+        fetch('/api/subjects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('subject-name').value = '';
+            document.getElementById('add-subject-form').classList.add('hidden');
+            if (data.status) {
+                alert('Subyek ditambahkan!');
+            } else {
+                alert('Gagal menambahkan subyek..' + data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error: ', err);
+        });
+    });
+
     try {
         const res_ds = await fetch('/api/devices/subjects');
         const data_ds = await res_ds.json();

@@ -13,7 +13,6 @@ body {
 #show-subjects-btn {
     width: 200px;
     height: 40px;
-    /* padding: 8px 12px; */
 }
 
 #modal {
@@ -30,9 +29,51 @@ body {
     position: absolute;
     top: 10px;
     right: 15px;
-    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 32px;
+}
+
+#subject-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 16px;
+}
+
+#add-subject-form {
+    width: 300px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+#subject-form-container.hidden {
+    display: none;
+}
+
+#add-subject-form input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#add-subject-form button {
+    align-self: flex-end;
+    padding: 6px 12px;
 }
 
 .modal-content {

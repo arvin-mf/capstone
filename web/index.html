@@ -12,7 +12,18 @@
   <div id="modal" class="hidden">
     <div class="modal-content">
       <span id="close-modal">&times;</span>
-      <h2>Data Subyek</h2>
+      <div class="modal-header">
+        <h2>Data Subyek</h2>
+        <button id="add-subject-btn">Tambah Subyek Baru</button>
+      </div>
+
+      <div id="subject-form-container" class="hidden">
+        <form id="add-subject-form">
+          <input type="text" id="subject-name" placeholder="Masukkan Nama Subyek">
+          <button id="submit-subject-btn">Simpan</button>
+        </form>
+      </div>
+
       <div class="header">
         <div class="header-column">Nama Subyek</div>
         <div class="header-column">Waktu Mulai Memakai</div>
