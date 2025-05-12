@@ -52,3 +52,7 @@ func ToDeviceWithSubjectResponses(subjects *[]repository.DeviceWithSubject) []De
 	}
 	return responses
 }
+
+type SetDeviceSubjectReq struct {
+	SubjectID int64 `json:"subject_id"`
+}

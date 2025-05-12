@@ -70,32 +70,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const setModal = document.getElementById('set-modal');
-    const setBtn = document.createElement('button');
-    setBtn.textContent = 'Simpan';
-    setBtn.addEventListener('click', () => {
-        fetch('/api/devices/subjects', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                subject_id: select.value,
-                device_id: item.device_id
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('set-subject').value = '';
-            document.getElementById('set-modal').classList.add('hidden');
-            if (data.status) {
-                alert('Subyek berhasil dipasangkan');
-            } else {
-                alert('Gagal memasangkan subyek..' + data.message);
-            }
-        })
-        .catch(err => {
-            console.error('Fetch error: ', err);
-        });
-    });
-    
     const select = document.getElementById('set-subject');
     fetch('/api/subjects')
     .then(response => response.json())
@@ -106,6 +80,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             opt.textContent = subject.name;
             select.appendChild(opt);
         })
+    });
+
+    const setBtn = document.createElement('button');
+    setBtn.textContent = 'Simpan';
+    setBtn.addEventListener('click', (e) => {
+        const deviceId = e.target.id.replace('set-subject-btn-', '');
+
+        fetch('/api/devices/'+parseInt(deviceId)+'/subjects', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                subject_id: parseInt(select.value)
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            select.value = '';
+            setModal.classList.add('hidden');
+            if (data.status) {
+                alert('Subyek berhasil dipasangkan');
+            } else {
+                alert('Gagal memasangkan subyek..' + data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error: ', err);
+        });
     });
 
     setModal.appendChild(setBtn);

@@ -77,6 +77,7 @@ func apiRoute(r *gin.Engine, sh *handler.SubjectHandler, dh *handler.DeviceHandl
 	api.POST("/devices", dh.AddDevice)
 	api.DELETE("/devices/:deviceId", dh.DeleteDevice)
 	api.GET("/devices/subjects", dh.GetDevicesWithSubject)
+	api.PUT("/devices/:deviceId/subjects", dh.SetDeviceSubject)
 }
 
 func webRoute(r *gin.Engine) {

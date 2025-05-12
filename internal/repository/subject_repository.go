@@ -13,8 +13,6 @@ type SubjectRepository interface {
 	AddSubject(ctx context.Context, params Subject) (sql.Result, error)
 	FindSubjects(ctx context.Context) ([]Subject, error)
 	DeleteSubject(ctx context.Context, params Subject) (sql.Result, error)
-	SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error)
-	RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error)
 	FindSubjectByDeviceID(ctx context.Context, dID int64) (*Subject, error)
 }
 
@@ -79,31 +77,6 @@ func (r *subjectRepository) DeleteSubject(ctx context.Context, params Subject) (
 	return result, nil
 }
 
-const setDeviceSubject = `INSERT INTO device_subjects (device_id, subject_id) VALUES (:d_id, :s_id);`
-
-type SetDeviceSubjectParam struct {
-	SubjectID int64 `db:"s_id"`
-	DeviceID  int64 `db:"d_id"`
-}
-
-func (r *subjectRepository) SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error) {
-	result, err := r.db.NamedExec(setDeviceSubject, params)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-const removeDeviceSubject = `DELETE FROM device_subjects WHERE device_id = ?`
-
-func (r *subjectRepository) RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error) {
-	result, err := r.db.NamedExec(removeDeviceSubject, dID)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 const findSubjectByDeviceID = `SELECT s.* FROM subjects s
 INNER JOIN device_subjects ds ON ds.subject_id = s.id
 WHERE ds.device_id = ?`
@@ -115,13 +88,3 @@ func (r *subjectRepository) FindSubjectByDeviceID(ctx context.Context, dID int64
 	}
 	return &row, nil
 }
-
-const findSubjectsWithDevice = `SELECT
-	ds.subject_id,
-	ds.device_id,
-	s.name,
-	s.is_fatigued,
-	ds.created_at
-FROM subjects s
-INNER JOIN device_subjects ds ON ds.subject_id = s.id
-ORDER BY s.name;`

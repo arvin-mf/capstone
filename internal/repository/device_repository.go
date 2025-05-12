@@ -16,6 +16,8 @@ type DeviceRepository interface {
 	AddDevice(ctx context.Context, params Device) (sql.Result, error)
 	DeleteDevice(ctx context.Context, params Device) (sql.Result, error)
 	FindDevicesWithSubject(ctx context.Context) ([]DeviceWithSubject, error)
+	SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error)
+	RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error)
 }
 
 type deviceRepository struct {
@@ -116,4 +118,29 @@ func (r *deviceRepository) FindDevicesWithSubject(ctx context.Context) ([]Device
 	}
 
 	return rows, nil
+}
+
+const setDeviceSubject = `INSERT INTO device_subjects (device_id, subject_id) VALUES (:d_id, :s_id);`
+
+type SetDeviceSubjectParam struct {
+	SubjectID int64 `db:"s_id"`
+	DeviceID  int64 `db:"d_id"`
+}
+
+func (r *deviceRepository) SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error) {
+	result, err := r.db.NamedExec(setDeviceSubject, params)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+const removeDeviceSubject = `DELETE FROM device_subjects WHERE device_id = ?`
+
+func (r *deviceRepository) RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error) {
+	result, err := r.db.Exec(removeDeviceSubject, dID)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

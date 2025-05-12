@@ -11,6 +11,7 @@ type DeviceService interface {
 	AddDevice(ctx context.Context, arg dto.DeviceCreateReq) error
 	DeleteDevice(ctx context.Context, deviceID int64) error
 	GetDevicesWithSubject(ctx context.Context) ([]dto.DeviceWithSubjectResponse, error)
+	SetDeviceSubject(ctx context.Context, deviceID int64, arg dto.SetDeviceSubjectReq) error
 }
 
 type deviceService struct {
@@ -61,4 +62,21 @@ func (s *deviceService) GetDevicesWithSubject(ctx context.Context) ([]dto.Device
 	}
 
 	return dto.ToDeviceWithSubjectResponses(&devices), nil
+}
+
+func (s *deviceService) SetDeviceSubject(ctx context.Context, deviceID int64, arg dto.SetDeviceSubjectReq) error {
+	_, err := s.deviceRepo.RemoveDeviceSubject(ctx, deviceID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.deviceRepo.SetDeviceSubject(ctx, repository.SetDeviceSubjectParam{
+		SubjectID: arg.SubjectID,
+		DeviceID:  deviceID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
