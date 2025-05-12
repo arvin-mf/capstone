@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 list.appendChild(s);
             });
 
-            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('subject-modal').classList.remove('hidden');
         } catch (err) {
             console.error('Gagal memuat data: ', err);
         }
     });
 
-    document.getElementById('close-modal').addEventListener('click', function () {
-        document.getElementById('modal').classList.add('hidden');
+    document.getElementById('close-subject-modal').addEventListener('click', function () {
+        document.getElementById('subject-modal').classList.add('hidden');
     });
 
     document.getElementById('add-subject-btn').addEventListener('click', () => {
@@ -69,20 +69,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    try {
-        const res_ds = await fetch('/api/devices/subjects');
-        const data_ds = await res_ds.json();
+    const setModal = document.getElementById('set-modal');
+    const setBtn = document.createElement('button');
+    setBtn.textContent = 'Simpan';
+    setBtn.addEventListener('click', () => {
+        fetch('/api/devices/subjects', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                subject_id: select.value,
+                device_id: item.device_id
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('set-subject').value = '';
+            document.getElementById('set-modal').classList.add('hidden');
+            if (data.status) {
+                alert('Subyek berhasil dipasangkan');
+            } else {
+                alert('Gagal memasangkan subyek..' + data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error: ', err);
+        });
+    });
+    
+    const select = document.getElementById('set-subject');
+    fetch('/api/subjects')
+    .then(response => response.json())
+    .then(data => {
+        data.data.forEach(subject => {
+            const opt = document.createElement('option');
+            opt.value = subject.id;
+            opt.textContent = subject.name;
+            select.appendChild(opt);
+        })
+    });
 
-        const ds_list = document.getElementById('device-subject-list');
-        ds_list.innerHTML = '';
-        data_ds.data.forEach(item => {
+    setModal.appendChild(setBtn);
+
+    try {
+        const resDs = await fetch('/api/devices/subjects');
+        const dataDs = await resDs.json();
+
+        const dsList = document.getElementById('device-subject-list');
+        dsList.innerHTML = '';
+        dataDs.data.forEach(item => {
             const row = document.createElement('div');
-            row.classList.add('device-subject-row');
+            row.classList.add('device-subject-row-container');
+            const rowData = document.createElement('div');
+            rowData.classList.add('device-subject-row');
 
             const noSubject = item.subject_id === 0;
-            if (noSubject) {
-                row.classList.add('no-subject');
-            }
 
             const deviceId = document.createElement('div');
             deviceId.textContent = item.device_id;
@@ -100,12 +140,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             createdAt.textContent = noSubject ? '' : new Date(item.created_at).toLocaleString();
             createdAt.classList.add('device-subject-data');
 
-            row.appendChild(deviceId);
-            row.appendChild(name);
-            row.appendChild(isFatigued);
-            row.appendChild(createdAt);
+            const setSubjectButtonContainer = document.createElement('div');
+            setSubjectButtonContainer.classList.add('set-subject-btn-container');
 
-            ds_list.appendChild(row);
+            const setSubjectButton = document.createElement('button');
+            setSubjectButton.textContent = 'Atur Subyek';
+            setSubjectButton.classList.add('set-subject-btn');
+            setSubjectButton.id = 'set-subject-btn-' + item.device_id;
+
+            setSubjectButton.addEventListener('click', (e) => {
+                const rect = e.target.getBoundingClientRect();
+                
+                setModal.style.position = 'absolute';
+                setModal.style.top = `${rect.bottom + window.scrollY}px`;
+                setModal.style.left = `${rect.left + window.scrollX}px`;
+                
+                setModal.classList.toggle('hidden');
+            });
+            
+            rowData.appendChild(deviceId);
+            rowData.appendChild(name);
+            rowData.appendChild(isFatigued);
+            rowData.appendChild(createdAt);
+            setSubjectButtonContainer.appendChild(setSubjectButton);
+            
+            row.appendChild(rowData);
+            row.appendChild(setSubjectButtonContainer);
+
+            dsList.appendChild(row);
         });
     } catch (err) {
         console.error('Gagal memuat device-subjects: ', err);

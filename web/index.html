@@ -9,9 +9,9 @@
 <body>
   <button id="show-subjects-btn">Lihat Semua Subyek</button>
 
-  <div id="modal" class="hidden">
+  <div id="subject-modal" class="hidden">
     <div class="modal-content">
-      <span id="close-modal">&times;</span>
+      <span id="close-subject-modal">&times;</span>
       <div class="modal-header">
         <h2>Data Subyek</h2>
         <button id="add-subject-btn">Tambah Subyek Baru</button>
@@ -33,6 +33,12 @@
     </div>
   </div>
 
+  <div id="set-modal" class="hidden">
+    <form id="set-form">
+      <select id="set-subject" required></select>
+    </form>
+  </div>
+
   <div id="device-subjects">
     <h2>Status Subyek</h2>
     <div class="header">
@@ -40,6 +46,7 @@
       <div class="header-column">Nama Pengguna</div>
       <div class="header-column">Status Kelelahan</div>
       <div class="header-column">Waktu Mulai Memakai</div>
+      <div class="header-column"></div>
     </div>
     <div id="device-subject-list">
     </div>
