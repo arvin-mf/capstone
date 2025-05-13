@@ -82,35 +82,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
     });
 
-    const setBtn = document.createElement('button');
-    setBtn.textContent = 'Simpan';
-    setBtn.addEventListener('click', (e) => {
-        const deviceId = e.target.id.replace('set-subject-btn-', '');
-
-        fetch('/api/devices/'+parseInt(deviceId)+'/subjects', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                subject_id: parseInt(select.value)
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            select.value = '';
-            setModal.classList.add('hidden');
-            if (data.status) {
-                alert('Subyek berhasil dipasangkan');
-            } else {
-                alert('Gagal memasangkan subyek..' + data.message);
-            }
-        })
-        .catch(err => {
-            console.error('Fetch error: ', err);
-        });
-    });
-
-    setModal.appendChild(setBtn);
-
     try {
         const resDs = await fetch('/api/devices/subjects');
         const dataDs = await resDs.json();
@@ -124,9 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             rowData.classList.add('device-subject-row');
 
             const noSubject = item.subject_id === 0;
+            const dId = item.device_id;
 
             const deviceId = document.createElement('div');
-            deviceId.textContent = item.device_id;
+            deviceId.textContent = dId;
             deviceId.classList.add('device-subject-data');
 
             const name = document.createElement('div');
@@ -147,7 +119,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const setSubjectButton = document.createElement('button');
             setSubjectButton.textContent = 'Atur Subyek';
             setSubjectButton.classList.add('set-subject-btn');
-            setSubjectButton.id = 'set-subject-btn-' + item.device_id;
 
             setSubjectButton.addEventListener('click', (e) => {
                 const rect = e.target.getBoundingClientRect();
@@ -157,6 +128,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setModal.style.left = `${rect.left + window.scrollX}px`;
                 
                 setModal.classList.toggle('hidden');
+
+                const existingBtn = document.getElementById('submit-set-btn');
+                if (existingBtn) existingBtn.remove();
+
+                const setBtn = document.createElement('button');
+                setBtn.textContent = 'Simpan';
+                setBtn.id = 'submit-set-btn';
+                setBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    fetch('/api/devices/' + dId + '/subjects', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            subject_id: parseInt(select.value)
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        select.value = '';
+                        setModal.classList.add('hidden');
+                        if (data.status) {
+                            alert('Subyek berhasil dipasangkan');
+                        } else {
+                            alert('Gagal memasangkan subyek..' + data.message);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Fetch error: ', err);
+                    });
+                });
+
+                setModal.appendChild(setBtn);
             });
             
             rowData.appendChild(deviceId);
