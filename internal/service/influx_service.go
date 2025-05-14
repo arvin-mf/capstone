@@ -5,6 +5,7 @@ import (
 	"caps_influx/internal/repository"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -13,7 +14,8 @@ import (
 )
 
 type InfluxService interface {
-	WriteData(m mqtt.Message)
+	WritePeriodicData(m mqtt.Message)
+	WritePerpetualData(m mqtt.Message)
 }
 
 type influxService struct {
@@ -30,33 +32,18 @@ func NewInfluxService(ir repository.InfluxRepository, sr repository.SubjectRepos
 	}
 }
 
-func (s *influxService) WriteData(m mqtt.Message) {
+func (s *influxService) WritePeriodicData(m mqtt.Message) {
 	ctx := context.Background()
 
-	var data dto.SubscribeData
+	var data dto.SubscribePeriodicData
 	if err := json.Unmarshal(m.Payload(), &data); err != nil {
 		fmt.Printf("Failed to fetch data from broker: %v\n", err)
 		return
 	}
 
-	topic := m.Topic()
-	topicParts := strings.Split(topic, "/")
-	if len(topicParts) < 3 {
-		fmt.Printf("This topic '%s' is not in a suitable format\n", topic)
-		return
-	}
-
-	clientID := topicParts[1]
-
-	device, err := s.deviceRepo.FindDeviceByClientID(ctx, clientID)
+	deviceID, subjectID, err := s.findDeviceAndSubject(ctx, m)
 	if err != nil {
-		fmt.Println("Failed to fetch device from database")
-		return
-	}
-
-	subject, err := s.subjectRepo.FindSubjectByDeviceID(ctx, device.ID)
-	if err != nil {
-		fmt.Println("Failed to fetch subject from database")
+		fmt.Printf("Failed to fetch data from database: %v", err)
 		return
 	}
 
@@ -67,15 +54,64 @@ func (s *influxService) WriteData(m mqtt.Message) {
 		status = repository.StatusNotFatigued
 	}
 
-	if err := s.influxRepo.Write(ctx, repository.InfluxPointParam{
-		DeviceID:           strconv.Itoa(int(device.ID)),
-		SubjectID:          strconv.Itoa(int(subject.ID)),
+	err = s.influxRepo.WritePeriodic(ctx, repository.InfluxPeriodicPointParam{
+		DeviceID:           deviceID,
+		SubjectID:          subjectID,
 		Bpm:                data.Bpm,
 		BodyTemperature:    data.BodyTemperature,
 		AmbientTemperature: data.AmbientTemperature,
 		Status:             status,
-	}); err != nil {
+	})
+	if err != nil {
 		fmt.Printf("Failed to write data to InfluxDB: %v", err)
 		return
 	}
+}
+
+func (s *influxService) WritePerpetualData(m mqtt.Message) {
+	ctx := context.Background()
+
+	var data dto.SubscribePerpetualData
+	if err := json.Unmarshal(m.Payload(), &data); err != nil {
+		fmt.Printf("Failed to fetch data from broker: %v", err)
+		return
+	}
+
+	deviceID, subjectID, err := s.findDeviceAndSubject(ctx, m)
+	if err != nil {
+		fmt.Printf("Failed to fetch data from database")
+		return
+	}
+
+	err = s.influxRepo.WritePerpetual(ctx, repository.InfluxPerpetualPointParam{
+		DeviceID:  deviceID,
+		SubjectID: subjectID,
+		RawEcg:    data.RawEcg,
+	})
+	if err != nil {
+		fmt.Printf("Failed to write data to InfluxDB: %v", err)
+		return
+	}
+}
+
+func (s *influxService) findDeviceAndSubject(ctx context.Context, m mqtt.Message) (string, string, error) {
+	topic := m.Topic()
+	topicParts := strings.Split(topic, "/")
+	if len(topicParts) < 3 {
+		return "", "", errors.New("this topic is not in a suitable format")
+	}
+
+	clientID := topicParts[1]
+
+	device, err := s.deviceRepo.FindDeviceByClientID(ctx, clientID)
+	if err != nil {
+		return "", "", err
+	}
+
+	subject, err := s.subjectRepo.FindSubjectByDeviceID(ctx, device.ID)
+	if err != nil {
+		return "", "", err
+	}
+
+	return strconv.Itoa(int(device.ID)), strconv.Itoa(int(subject.ID)), nil
 }

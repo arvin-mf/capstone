@@ -5,7 +5,8 @@ import (
 )
 
 type SubscribeService interface {
-	SubscribeData()
+	SubscribePeriodicData()
+	SubscribePerpetualData()
 }
 
 type subscribeService struct {
@@ -20,8 +21,14 @@ func NewSubscribeService(c mqtt.Client, is InfluxService) SubscribeService {
 	}
 }
 
-func (s *subscribeService) SubscribeData() {
+func (s *subscribeService) SubscribePeriodicData() {
 	s.client.Subscribe("esp32/+/discrete", 1, func(c mqtt.Client, m mqtt.Message) {
-		s.influxServ.WriteData(m)
+		s.influxServ.WritePeriodicData(m)
+	})
+}
+
+func (s *subscribeService) SubscribePerpetualData() {
+	s.client.Subscribe("esp32/+/continue", 1, func(c mqtt.Client, m mqtt.Message) {
+		s.influxServ.WritePerpetualData(m)
 	})
 }

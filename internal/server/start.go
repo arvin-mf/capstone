@@ -15,7 +15,7 @@ import (
 
 func StartEngine(e *gin.Engine, db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client) {
 	sh, dh, subscs := initHandler(db, ic, mc)
-	go subscs.SubscribeData()
+	go subscs.SubscribePeriodicData()
 	route(e, sh, dh)
 }
 

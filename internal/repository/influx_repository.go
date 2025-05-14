@@ -10,7 +10,8 @@ import (
 )
 
 type InfluxRepository interface {
-	Write(ctx context.Context, params InfluxPointParam) error
+	WritePeriodic(ctx context.Context, params InfluxPeriodicPointParam) error
+	WritePerpetual(ctx context.Context, params InfluxPerpetualPointParam) error
 }
 
 type influxRepository struct {
@@ -26,12 +27,13 @@ func NewInfluxRepository(ic influxdb2.Client, org, bucket string) InfluxReposito
 }
 
 const (
-	clientTagName               string = "client"
+	deviceTagName               string = "device"
 	subjectTagName              string = "subject"
 	bpmFieldName                string = "bpm"
 	bodyTemperatureFieldName    string = "body_temperature"
 	ambientTemperatureFieldName string = "ambient_temperature"
 	statusFieldName             string = "status"
+	rawEcgFieldName             string = "raw_ecg"
 )
 
 type SubjectStatus bool
@@ -41,7 +43,7 @@ const (
 	StatusNotFatigued SubjectStatus = false
 )
 
-type InfluxPointParam struct {
+type InfluxPeriodicPointParam struct {
 	DeviceID           string
 	SubjectID          string
 	Bpm                float32
@@ -50,11 +52,11 @@ type InfluxPointParam struct {
 	Status             SubjectStatus
 }
 
-func (r *influxRepository) Write(ctx context.Context, params InfluxPointParam) error {
+func (r *influxRepository) WritePeriodic(ctx context.Context, params InfluxPeriodicPointParam) error {
 	point := write.NewPoint(
 		"subject_fatigue",
 		map[string]string{
-			clientTagName:  params.DeviceID,
+			deviceTagName:  params.DeviceID,
 			subjectTagName: params.SubjectID,
 		},
 		map[string]interface{}{
@@ -62,6 +64,32 @@ func (r *influxRepository) Write(ctx context.Context, params InfluxPointParam) e
 			bodyTemperatureFieldName:    params.BodyTemperature,
 			ambientTemperatureFieldName: params.AmbientTemperature,
 			statusFieldName:             bool(params.Status),
+		},
+		time.Now(),
+	)
+
+	if err := r.write.WritePoint(ctx, point); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type InfluxPerpetualPointParam struct {
+	DeviceID  string
+	SubjectID string
+	RawEcg    float32
+}
+
+func (r *influxRepository) WritePerpetual(ctx context.Context, params InfluxPerpetualPointParam) error {
+	point := write.NewPoint(
+		"subject_raw_ecg",
+		map[string]string{
+			deviceTagName:  params.DeviceID,
+			subjectTagName: params.SubjectID,
+		},
+		map[string]interface{}{
+			rawEcgFieldName: params.RawEcg,
 		},
 		time.Now(),
 	)
