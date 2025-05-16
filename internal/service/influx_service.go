@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -71,8 +72,8 @@ func (s *influxService) WritePeriodicData(m mqtt.Message) {
 func (s *influxService) WritePerpetualData(m mqtt.Message) {
 	ctx := context.Background()
 
-	var data dto.SubscribePerpetualData
-	if err := json.Unmarshal(m.Payload(), &data); err != nil {
+	var datas dto.SubscribePerpetualData
+	if err := json.Unmarshal(m.Payload(), &datas); err != nil {
 		fmt.Printf("Failed to fetch data from broker: %v", err)
 		return
 	}
@@ -83,14 +84,23 @@ func (s *influxService) WritePerpetualData(m mqtt.Message) {
 		return
 	}
 
-	err = s.influxRepo.WritePerpetual(ctx, repository.InfluxPerpetualPointParam{
-		DeviceID:  deviceID,
-		SubjectID: subjectID,
-		RawEcg:    data.RawEcg,
-	})
-	if err != nil {
-		fmt.Printf("Failed to write data to InfluxDB: %v", err)
-		return
+	for _, data := range datas.Datas {
+		timestamp, err := time.Parse("", data.Timestamp)
+		if err != nil {
+			fmt.Printf("Failed to parse time data: %v", err)
+			return
+		}
+
+		err = s.influxRepo.WritePerpetual(ctx, repository.InfluxPerpetualPointParam{
+			DeviceID:  deviceID,
+			SubjectID: subjectID,
+			RawEcg:    data.RawEcg,
+			Timestamp: timestamp,
+		})
+		if err != nil {
+			fmt.Printf("Failed to write data to InfluxDB: %v", err)
+			return
+		}
 	}
 }
 

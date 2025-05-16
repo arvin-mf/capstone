@@ -34,6 +34,7 @@ const (
 	ambientTemperatureFieldName string = "ambient_temperature"
 	statusFieldName             string = "status"
 	rawEcgFieldName             string = "raw_ecg"
+	timestampFieldName          string = "timestamp"
 )
 
 type SubjectStatus bool
@@ -79,6 +80,7 @@ type InfluxPerpetualPointParam struct {
 	DeviceID  string
 	SubjectID string
 	RawEcg    float32
+	Timestamp time.Time
 }
 
 func (r *influxRepository) WritePerpetual(ctx context.Context, params InfluxPerpetualPointParam) error {
@@ -89,7 +91,8 @@ func (r *influxRepository) WritePerpetual(ctx context.Context, params InfluxPerp
 			subjectTagName: params.SubjectID,
 		},
 		map[string]interface{}{
-			rawEcgFieldName: params.RawEcg,
+			rawEcgFieldName:    params.RawEcg,
+			timestampFieldName: params.Timestamp,
 		},
 		time.Now(),
 	)

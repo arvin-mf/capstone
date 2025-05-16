@@ -7,6 +7,11 @@ type SubscribePeriodicData struct {
 	Status             int     `json:"status"`
 }
 
+type PerpetualData struct {
+	RawEcg    float32
+	Timestamp string
+}
+
 type SubscribePerpetualData struct {
-	RawEcg float32 `json:"raw_ecg"`
+	Datas []PerpetualData `json:"data"`
 }
