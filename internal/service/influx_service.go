@@ -95,7 +95,7 @@ func (s *influxService) WritePerpetualData(m mqtt.Message) {
 			DeviceID:  deviceID,
 			SubjectID: subjectID,
 			RawEcg:    data.RawEcg,
-			Timestamp: timestamp,
+			Timestamp: timestamp.UnixNano(),
 		})
 		if err != nil {
 			fmt.Printf("Failed to write data to InfluxDB: %v", err)

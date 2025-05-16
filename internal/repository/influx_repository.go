@@ -80,7 +80,7 @@ type InfluxPerpetualPointParam struct {
 	DeviceID  string
 	SubjectID string
 	RawEcg    float32
-	Timestamp time.Time
+	Timestamp int64
 }
 
 func (r *influxRepository) WritePerpetual(ctx context.Context, params InfluxPerpetualPointParam) error {
