@@ -14,6 +14,7 @@ type SubjectRepository interface {
 	FindSubjects(ctx context.Context) ([]Subject, error)
 	DeleteSubject(ctx context.Context, params Subject) (sql.Result, error)
 	FindSubjectByDeviceID(ctx context.Context, dID int64) (*Subject, error)
+	UpdateSubjectFatiguedStatus(ctx context.Context, params Subject) (sql.Result, error)
 }
 
 type subjectRepository struct {
@@ -87,4 +88,14 @@ func (r *subjectRepository) FindSubjectByDeviceID(ctx context.Context, dID int64
 		return nil, err
 	}
 	return &row, nil
+}
+
+const updateSubjectFatiguedStatus = `UPDATE subjects SET is_fatigued = :status WHERE id = :id`
+
+func (r *subjectRepository) UpdateSubjectFatiguedStatus(ctx context.Context, params Subject) (sql.Result, error) {
+	result, err := r.db.NamedExec(updateSubjectFatiguedStatus, params)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

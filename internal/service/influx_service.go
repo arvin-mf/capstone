@@ -48,12 +48,29 @@ func (s *influxService) WritePeriodicData(m mqtt.Message) {
 		return
 	}
 
-	var status repository.SubjectStatus
+	var (
+		isFatigued  bool
+		pointStatus repository.SubjectStatus
+	)
+
 	if data.Status == 1 {
-		status = repository.StatusFatigued
+		pointStatus = repository.StatusFatigued
+		isFatigued = true
 	} else {
-		status = repository.StatusNotFatigued
+		pointStatus = repository.StatusNotFatigued
+		isFatigued = false
 	}
+
+	subjectIDInt, err := strconv.Atoi(subjectID)
+	if err != nil {
+		fmt.Printf("Failed to parse subject ID: %v", err)
+		return
+	}
+
+	_, err = s.subjectRepo.UpdateSubjectFatiguedStatus(ctx, repository.Subject{
+		ID:         int64(subjectIDInt),
+		IsFatigued: isFatigued,
+	})
 
 	err = s.influxRepo.WritePeriodic(ctx, repository.InfluxPeriodicPointParam{
 		DeviceID:           deviceID,
@@ -61,7 +78,7 @@ func (s *influxService) WritePeriodicData(m mqtt.Message) {
 		Bpm:                data.Bpm,
 		BodyTemperature:    data.BodyTemperature,
 		AmbientTemperature: data.AmbientTemperature,
-		Status:             status,
+		Status:             pointStatus,
 	})
 	if err != nil {
 		fmt.Printf("Failed to write data to InfluxDB: %v", err)
