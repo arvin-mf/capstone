@@ -20,7 +20,7 @@ func main() {
 
 	deviceRepo := repository.NewDeviceRepository(db)
 
-	deviceClients := []string{""}
+	deviceClients := []string{"34:94:54:f0:fe:bc"}
 
 	count := len(deviceClients)
 	errChan := make(chan error, count)

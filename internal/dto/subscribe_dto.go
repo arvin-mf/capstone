@@ -13,5 +13,7 @@ type PerpetualData struct {
 }
 
 type SubscribePerpetualData struct {
-	Datas []PerpetualData `json:"data"`
+	// Datas []PerpetualData `json:"data"`
+	RawEcg float32 `json:"raw_ecg"`
+	// Timestamp string  `json:"timestamp"`
 }
