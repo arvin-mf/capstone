@@ -71,6 +71,10 @@ func (s *influxService) WritePeriodicData(m mqtt.Message) {
 		ID:         int64(subjectIDInt),
 		IsFatigued: isFatigued,
 	})
+	if err != nil {
+		fmt.Printf("Failed to update fatigued status: %v", err)
+		return
+	}
 
 	err = s.influxRepo.WritePeriodic(ctx, repository.InfluxPeriodicPointParam{
 		DeviceID:           deviceID,
