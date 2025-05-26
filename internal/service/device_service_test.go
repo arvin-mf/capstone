@@ -48,7 +48,7 @@ func TestAddDevice(t *testing.T) {
 	service := NewDeviceService(mockDeviceRepo)
 
 	device := dto.DeviceCreateReq{ClientID: "aa:bb:cc:dd:ee:ff"}
-	mockResult := mocks.MockResult{}
+	mockResult := &mocks.MockResult{}
 	mockDeviceRepo.On("AddDevice", mock.Anything, mock.AnythingOfType("repository.Device")).Return(mockResult, nil)
 
 	err := service.AddDevice(context.Background(), device)
@@ -61,7 +61,7 @@ func TestDeleteDevice(t *testing.T) {
 	service := NewDeviceService(mockDeviceRepo)
 
 	deviceID := int64(1)
-	mockResult := mocks.MockResult{}
+	mockResult := &mocks.MockResult{}
 	mockDeviceRepo.On("DeleteDevice", mock.Anything, mock.AnythingOfType("repository.Device")).Return(mockResult, nil)
 
 	err := service.DeleteDevice(context.Background(), deviceID)
@@ -104,7 +104,7 @@ func TestSetDeviceSubject(t *testing.T) {
 
 	deviceID := int64(1)
 	arg := dto.SetDeviceSubjectReq{SubjectID: 10}
-	mockResult := mocks.MockResult{}
+	mockResult := &mocks.MockResult{}
 	mockDeviceRepo.On("RemoveDeviceSubject", mock.Anything, deviceID).Return(mockResult, nil)
 	mockDeviceRepo.On("SetDeviceSubject", mock.Anything, repository.SetDeviceSubjectParam{
 		SubjectID: arg.SubjectID,
