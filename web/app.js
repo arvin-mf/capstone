@@ -177,4 +177,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
         console.error('Gagal memuat device-subjects: ', err);
     }
+
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+        window.location.reload();
+    });
+    
 });
