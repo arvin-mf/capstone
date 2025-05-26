@@ -90,7 +90,7 @@ func (r *subjectRepository) FindSubjectByDeviceID(ctx context.Context, dID int64
 	return &row, nil
 }
 
-const updateSubjectFatiguedStatus = `UPDATE subjects SET is_fatigued = :status WHERE id = :id`
+const updateSubjectFatiguedStatus = `UPDATE subjects SET is_fatigued = :is_fatigued WHERE id = :id`
 
 func (r *subjectRepository) UpdateSubjectFatiguedStatus(ctx context.Context, params Subject) (sql.Result, error) {
 	result, err := r.db.NamedExec(updateSubjectFatiguedStatus, params)

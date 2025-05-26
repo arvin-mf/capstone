@@ -13,16 +13,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const s = document.createElement('div');
                 s.classList.add('subject-row');
 
+                const sID = document.createElement('div');
+                sID.textContent = subject.id;
+                sID.classList.add('subject-data');
+
                 const name = document.createElement('div');
                 name.textContent = subject.name;
                 name.classList.add('subject-data');
 
-                const createdAt = document.createElement('div');
-                createdAt.textContent = new Date(subject.created_at).toLocaleString();
-                createdAt.classList.add('subject-data');
-
+                s.appendChild(sID);
                 s.appendChild(name);
-                s.appendChild(createdAt);
 
                 list.appendChild(s);
             });
