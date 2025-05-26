@@ -131,10 +131,24 @@ func (s *influxService) findDeviceAndSubject(ctx context.Context, m mqtt.Message
 		return "", "", err
 	}
 
-	subject, err := s.subjectRepo.FindSubjectByDeviceID(ctx, device.ID)
+	var deviceID int64
+	if device == nil {
+		result, err := s.deviceRepo.AddDevice(ctx, repository.Device{ClientID: clientID})
+		if err != nil {
+			return "", "", err
+		}
+		deviceID, err = result.LastInsertId()
+		if err != nil {
+			return "", "", err
+		}
+	} else {
+		deviceID = device.ID
+	}
+
+	subject, err := s.subjectRepo.FindSubjectByDeviceID(ctx, deviceID)
 	if err != nil {
 		return "", "", err
 	}
 
-	return strconv.Itoa(int(device.ID)), strconv.Itoa(int(subject.ID)), nil
+	return strconv.Itoa(int(deviceID)), strconv.Itoa(int(subject.ID)), nil
 }
