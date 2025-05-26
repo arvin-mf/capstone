@@ -55,6 +55,9 @@ const findDeviceByClientID = `SELECT id FROM devices WHERE client_id = ?`
 func (r *deviceRepository) FindDeviceByClientID(ctx context.Context, cID string) (*Device, error) {
 	var row Device
 	if err := r.db.Get(&row, findDeviceByClientID, cID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return &row, nil
