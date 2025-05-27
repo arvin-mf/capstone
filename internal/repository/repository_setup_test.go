@@ -9,8 +9,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var testDB *sqlx.DB
-var deviceRepo DeviceRepository
+var (
+	testDB      *sqlx.DB
+	deviceRepo  DeviceRepository
+	subjectRepo SubjectRepository
+)
 
 func TestMain(m *testing.M) {
 	config.LoadEnv("../../.env.test")
@@ -22,9 +25,8 @@ func TestMain(m *testing.M) {
 	}
 	defer testDB.Close()
 
-	testDB.Exec("TRUNCATE TABLE devices")
-
 	deviceRepo = NewDeviceRepository(testDB)
+	subjectRepo = NewSubjectRepository(testDB)
 
 	os.Exit(m.Run())
 }
