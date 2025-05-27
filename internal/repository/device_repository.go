@@ -33,10 +33,11 @@ func NewDeviceRepository(db *sqlx.DB) DeviceRepository {
 const findDevices = `SELECT * FROM devices;`
 
 type Device struct {
-	ID        int64     `db:"id"`
-	ClientID  string    `db:"client_id"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID           int64     `db:"id"`
+	ClientID     string    `db:"client_id"`
+	DeviceStatus bool      `db:"status"`
+	CreatedAt    time.Time `db:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"`
 }
 
 func (r *deviceRepository) FindDevices(ctx context.Context) ([]Device, error) {

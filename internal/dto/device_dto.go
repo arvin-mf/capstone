@@ -6,18 +6,25 @@ import (
 )
 
 type DeviceResponse struct {
-	ID        int64
-	ClientID  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID           int64     `json:"id"`
+	ClientID     string    `json:"client_id"`
+	DeviceStatus string    `json:"device_status"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func ToDeviceResponses(devices *[]repository.Device) []DeviceResponse {
 	responses := []DeviceResponse{}
 	for _, d := range *devices {
 		response := DeviceResponse{
-			ID:        d.ID,
-			ClientID:  d.ClientID,
+			ID:       d.ID,
+			ClientID: d.ClientID,
+			DeviceStatus: func(status bool) string {
+				if status {
+					return "on"
+				}
+				return "off"
+			}(d.DeviceStatus),
 			CreatedAt: d.CreatedAt,
 			UpdatedAt: d.UpdatedAt,
 		}

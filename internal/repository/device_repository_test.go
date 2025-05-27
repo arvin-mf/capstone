@@ -59,6 +59,9 @@ func TestDeviceOperations(t *testing.T) {
 		if devices[0].ID != id {
 			t.Errorf("Expected ID %d, got %d", device.ID, devices[0].ID)
 		}
+		if devices[0].DeviceStatus != false || devices[1].DeviceStatus != false {
+			t.Errorf("Expected device status false, got %t", devices[0].DeviceStatus)
+		}
 	})
 
 	t.Run("DeleteDevice", func(t *testing.T) {
