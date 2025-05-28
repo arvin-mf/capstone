@@ -17,6 +17,7 @@ func StartEngine(e *gin.Engine, db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client
 	sh, dh, subscs := initHandler(db, ic, mc)
 	go subscs.SubscribePeriodicData()
 	go subscs.SubscribePerpetualData()
+	go subscs.SubscribeStatusData()
 	route(e, sh, dh)
 }
 
@@ -40,7 +41,7 @@ func initHandler(db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client) (*handler.Sub
 		subjectServ   = service.NewSubjectService(subjectRepo)
 		deviceServ    = service.NewDeviceService(deviceRepo)
 		influxServ    = service.NewInfluxService(influxRepo, subjectRepo, deviceRepo)
-		subscribeServ = service.NewSubscribeService(mc, influxServ)
+		subscribeServ = service.NewSubscribeService(mc, influxServ, deviceRepo)
 	)
 
 	var (

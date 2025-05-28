@@ -4,6 +4,10 @@ import (
 	"caps_influx/internal/dto"
 	"caps_influx/internal/repository"
 	"context"
+	"errors"
+	"fmt"
+	"sync"
+	"time"
 )
 
 type DeviceService interface {
@@ -59,6 +63,49 @@ func (s *deviceService) GetDevicesWithSubject(ctx context.Context) ([]dto.Device
 	devices, err := s.deviceRepo.FindDevicesWithSubject(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	deviceCount := len(devices)
+	errChan := make(chan error, deviceCount)
+
+	var wg sync.WaitGroup
+	wg.Add(deviceCount)
+
+	for _, device := range devices {
+		deviceCopy := device
+
+		go func(d *repository.DeviceWithSubject) {
+			defer wg.Done()
+
+			if d.DeviceStatus {
+				if time.Since(d.UpdatedAt) > 2*time.Second {
+					_, err = s.deviceRepo.UpdateDeviceStatus(ctx, repository.Device{
+						ID:           d.DeviceID,
+						DeviceStatus: false,
+					})
+					if err != nil {
+						errChan <- err
+					}
+
+					d.DeviceStatus = false
+				}
+			}
+		}(&deviceCopy)
+	}
+	wg.Wait()
+	close(errChan)
+
+	var errs []error
+	for err := range errChan {
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if len(errs) > 0 {
+		for _, e := range errs {
+			fmt.Printf("Failed to update device status: %v\n", e)
+		}
+		return nil, errors.New("failed to update device status")
 	}
 
 	return dto.ToDeviceWithSubjectResponses(&devices), nil
