@@ -38,18 +38,27 @@ type DeviceCreateReq struct {
 }
 
 type DeviceWithSubjectResponse struct {
-	DeviceID   int64     `json:"device_id"`
-	SubjectID  int64     `json:"subject_id"`
-	Name       string    `json:"name"`
-	IsFatigued bool      `json:"is_fatigued"`
-	CreatedAt  time.Time `json:"created_at"`
+	DeviceID     int64     `json:"device_id"`
+	DeviceStatus string    `json:"device_status"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	SubjectID    int64     `json:"subject_id"`
+	Name         string    `json:"name"`
+	IsFatigued   bool      `json:"is_fatigued"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 func ToDeviceWithSubjectResponses(subjects *[]repository.DeviceWithSubject) []DeviceWithSubjectResponse {
 	responses := []DeviceWithSubjectResponse{}
 	for _, s := range *subjects {
 		response := DeviceWithSubjectResponse{
-			DeviceID:   s.DeviceID,
+			DeviceID: s.DeviceID,
+			DeviceStatus: func(status bool) string {
+				if status {
+					return "on"
+				}
+				return "off"
+			}(s.DeviceStatus),
+			UpdatedAt:  s.UpdatedAt,
 			SubjectID:  s.SubjectID.Int64,
 			Name:       s.Name.String,
 			IsFatigued: s.IsFatigued.Bool,
