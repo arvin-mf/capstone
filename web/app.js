@@ -1,4 +1,23 @@
+const setupRealTimeUpdates = () => {
+    // Pilihan 1: Polling
+    setInterval(async () => {
+      try {
+        const res = await fetch('/api/devices/subjects');
+        const data = await res.json();
+        
+        // Perbarui tampilan jika ada perubahan
+        const currentCount = document.querySelectorAll('.device-subject-row-container').length;
+        if (data.data.length !== currentCount) {
+          window.location.reload(); // Atau update bagian tertentu saja
+        }
+      } catch (err) {
+        console.error('Error checking updates:', err);
+      }
+    }, 4000); 
+  };
+
 document.addEventListener('DOMContentLoaded', async () => {
+    setupRealTimeUpdates();
     document.getElementById('show-subjects-btn').addEventListener('click', async () => {
         try {
             const res = await fetch('/api/subjects');
@@ -13,16 +32,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const s = document.createElement('div');
                 s.classList.add('subject-row');
 
-                const sID = document.createElement('div');
-                sID.textContent = subject.id;
-                sID.classList.add('subject-data');
-
                 const name = document.createElement('div');
                 name.textContent = subject.name;
                 name.classList.add('subject-data');
 
-                s.appendChild(sID);
+                const createdAt = document.createElement('div');
+                createdAt.textContent = new Date(subject.created_at).toLocaleString();
+                createdAt.classList.add('subject-data');
+
                 s.appendChild(name);
+                s.appendChild(createdAt);
 
                 list.appendChild(s);
             });
@@ -100,14 +119,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const deviceId = document.createElement('div');
             deviceId.textContent = dId;
             deviceId.classList.add('device-subject-data');
+            
+            const status = document.createElement('div');
+            deviceId.textContent = item.device_status;
 
             const name = document.createElement('div');
             name.textContent = noSubject ? '' : item.name;
             name.classList.add('device-subject-data');
 
             const isFatigued = document.createElement('div');
-            isFatigued.textContent = noSubject ? '' : item.is_fatigued;
+            isFatigued.textContent = noSubject ? '' : (item.is_fatigued ? "lelah" : "tidak lelah"); // Konversi ke teks
             isFatigued.classList.add('device-subject-data');
+            isFatigued.setAttribute('data-subject-status', item.is_fatigued.toString()); // Tambahkan atribut data
 
             const createdAt = document.createElement('div');
             createdAt.textContent = noSubject ? '' : new Date(item.created_at).toLocaleString();
@@ -164,6 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             
             rowData.appendChild(deviceId);
+            rowData.appendChild(status);
             rowData.appendChild(name);
             rowData.appendChild(isFatigued);
             rowData.appendChild(createdAt);
