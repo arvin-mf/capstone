@@ -1,0 +1,2 @@
+ALTER TABLE devices
+    ADD COLUMN status TINYINT(1) NOT NULL DEFAULT FALSE AFTER client_id;

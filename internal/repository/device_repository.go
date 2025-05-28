@@ -18,6 +18,7 @@ type DeviceRepository interface {
 	FindDevicesWithSubject(ctx context.Context) ([]DeviceWithSubject, error)
 	SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error)
 	RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error)
+	UpdateDeviceStatus(ctx context.Context, params Device) (sql.Result, error)
 }
 
 type deviceRepository struct {
@@ -33,10 +34,11 @@ func NewDeviceRepository(db *sqlx.DB) DeviceRepository {
 const findDevices = `SELECT * FROM devices;`
 
 type Device struct {
-	ID        int64     `db:"id"`
-	ClientID  string    `db:"client_id"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID           int64     `db:"id"`
+	ClientID     string    `db:"client_id"`
+	DeviceStatus bool      `db:"status"`
+	CreatedAt    time.Time `db:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"`
 }
 
 func (r *deviceRepository) FindDevices(ctx context.Context) ([]Device, error) {
@@ -50,7 +52,7 @@ func (r *deviceRepository) FindDevices(ctx context.Context) ([]Device, error) {
 	return rows, nil
 }
 
-const findDeviceByClientID = `SELECT id FROM devices WHERE client_id = ?`
+const findDeviceByClientID = `SELECT * FROM devices WHERE client_id = ?`
 
 func (r *deviceRepository) FindDeviceByClientID(ctx context.Context, cID string) (*Device, error) {
 	var row Device
@@ -94,6 +96,8 @@ func (r *deviceRepository) DeleteDevice(ctx context.Context, params Device) (sql
 
 const findDevicesWithSubject = `SELECT
 	d.id AS device_id,
+	d.status AS device_status,
+	d.updated_at,
 	ds.subject_id,
 	s.name,
 	s.is_fatigued,
@@ -103,11 +107,13 @@ LEFT JOIN device_subjects ds ON ds.device_id = d.id
 LEFT JOIN subjects s ON ds.subject_id = s.id;`
 
 type DeviceWithSubject struct {
-	DeviceID   int64          `db:"device_id"`
-	SubjectID  sql.NullInt64  `db:"subject_id"`
-	Name       sql.NullString `db:"name"`
-	IsFatigued sql.NullBool   `db:"is_fatigued"`
-	CreatedAt  sql.NullTime   `db:"created_at"`
+	DeviceID     int64          `db:"device_id"`
+	DeviceStatus bool           `db:"device_status"`
+	UpdatedAt    time.Time      `db:"updated_at"`
+	SubjectID    sql.NullInt64  `db:"subject_id"`
+	Name         sql.NullString `db:"name"`
+	IsFatigued   sql.NullBool   `db:"is_fatigued"`
+	CreatedAt    sql.NullTime   `db:"created_at"`
 }
 
 func (r *deviceRepository) FindDevicesWithSubject(ctx context.Context) ([]DeviceWithSubject, error) {
@@ -142,6 +148,16 @@ const removeDeviceSubject = `DELETE FROM device_subjects WHERE device_id = ?`
 
 func (r *deviceRepository) RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error) {
 	result, err := r.db.Exec(removeDeviceSubject, dID)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+const updateDeviceStatus = `UPDATE devices SET status = :status, updated_at = :updated_at WHERE id = :id`
+
+func (r *deviceRepository) UpdateDeviceStatus(ctx context.Context, params Device) (sql.Result, error) {
+	result, err := r.db.NamedExec(updateDeviceStatus, params)
 	if err != nil {
 		return nil, err
 	}
