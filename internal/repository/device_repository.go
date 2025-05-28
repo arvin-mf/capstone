@@ -154,7 +154,7 @@ func (r *deviceRepository) RemoveDeviceSubject(ctx context.Context, dID int64) (
 	return result, nil
 }
 
-const updateDeviceStatus = `UPDATE devices SET status = :status, updated_at = :updated_at WHERE id = :id`
+const updateDeviceStatus = `UPDATE devices SET status = :status, updated_at = NOW() WHERE id = :id`
 
 func (r *deviceRepository) UpdateDeviceStatus(ctx context.Context, params Device) (sql.Result, error) {
 	result, err := r.db.NamedExec(updateDeviceStatus, params)

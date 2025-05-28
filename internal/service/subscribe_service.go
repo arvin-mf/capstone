@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -77,7 +76,6 @@ func (s *subscribeService) updateDeviceStatus(m mqtt.Message) {
 		_, err = s.deviceRepo.UpdateDeviceStatus(ctx, repository.Device{
 			ID:           device.ID,
 			DeviceStatus: req.DeviceStatus == "on",
-			UpdatedAt:    time.Now(),
 		})
 		if err != nil {
 			fmt.Printf("Failed to update device status: %v\n", err)
