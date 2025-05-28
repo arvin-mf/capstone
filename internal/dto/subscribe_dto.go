@@ -17,3 +17,7 @@ type SubscribePerpetualData struct {
 	RawEcg float32 `json:"raw_ecg"`
 	// Timestamp string  `json:"timestamp"`
 }
+
+type SubscribeStatusData struct {
+	DeviceStatus string `json:"device_status"`
+}

@@ -46,3 +46,8 @@ func (m *MockDeviceRepository) RemoveDeviceSubject(ctx context.Context, dID int6
 	args := m.Called(ctx, dID)
 	return args.Get(0).(sql.Result), args.Error(1)
 }
+
+func (m *MockDeviceRepository) UpdateDeviceStatus(ctx context.Context, params repository.Device) (sql.Result, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(sql.Result), args.Error(1)
+}
