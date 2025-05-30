@@ -2,15 +2,16 @@ package repository
 
 import (
 	"caps_influx/config"
-	"log"
 	"os"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
 	testDB      *sqlx.DB
+	redisClient *redis.Client
 	deviceRepo  DeviceRepository
 	subjectRepo SubjectRepository
 )
@@ -18,14 +19,13 @@ var (
 func TestMain(m *testing.M) {
 	config.LoadEnv("../../.env.test")
 
-	var err error
-	testDB, err = config.InitDB()
-	if err != nil {
-		log.Fatalf("Failed to connect to test database: %v", err)
-	}
+	testDB = config.InitDB()
 	defer testDB.Close()
 
-	deviceRepo = NewDeviceRepository(testDB)
+	redisClient = config.InitRedis()
+	defer redisClient.Close()
+
+	deviceRepo = NewDeviceRepository(testDB, redisClient)
 	subjectRepo = NewSubjectRepository(testDB)
 
 	os.Exit(m.Run())

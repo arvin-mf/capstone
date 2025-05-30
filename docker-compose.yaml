@@ -42,8 +42,19 @@ services:
       - mosquitto-log:/mosquitto/log
       - ./mosquitto-na.conf:/mosquitto-na.conf
 
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
 volumes:
   mysql-data:
   influxdb-data:
   mosquitto-data:
   mosquitto-log:
+  redis-data:
