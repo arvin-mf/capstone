@@ -199,30 +199,6 @@
     margin-top: 80px;
     overflow-x: auto;
   }
-  
-  /* Tombol Set Subject */
-  .set-subject-btn-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .set-subject-btn {
-    width: 100%;
-    max-width: 140px;
-    height: 40px;
-    border: none;
-    background-color: #24b58a;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  
-  .set-subject-btn:hover {
-    background-color: #1f9471;
-  }
 
   select {
     padding: 8px 12px;
@@ -249,7 +225,7 @@
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
-    background-color: #4f46e5;
+    background-color: #10b981;
     color: white;
     font-size: 14px;
     cursor: pointer;
@@ -257,7 +233,7 @@
   }
   
   button:hover {
-    background-color: #1e3d99;
+    background-color: #0d986a;
   }
   
   #device-subjects {
@@ -308,3 +284,87 @@
   display: inline-block;
   font-weight: bold;
 }
+
+  /* Tombol Set Subject */
+  .action-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 6px 0;
+  }
+  
+  .set-subject-btn,
+  .delete-device-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    max-width: 150px;
+    height: 32px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition:
+      background-color 0.25s ease,
+      transform 0.15s ease,
+      box-shadow 0.25s ease;
+  }
+  
+  /* Tombol Atur Subyek */
+  .set-subject-btn {
+    background: linear-gradient(135deg, #3846d6, #3820c2);
+  }
+  
+  .set-subject-btn:hover {
+    background: linear-gradient(135deg, #25239c, #25239c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Tombol Hapus */
+  .delete-device-btn {
+    background: linear-gradient(135deg, #dd2727, #b81d1d);
+  }
+  
+  .delete-device-btn:hover {
+    background: linear-gradient(135deg, #b00f0f, #980b0b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  }
+  
+  #submit-set-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #24b58a, #1aa179); /* biru modern */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition:
+      background 0.3s ease,
+      transform 0.2s ease,
+      box-shadow 0.3s ease;
+  }
+  
+  #submit-set-btn:hover {
+    background: linear-gradient(135deg, #1c9873, #0c6a4e);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  #submit-set-btn:active {
+    transform: scale(0.98);
+  }
+  

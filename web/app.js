@@ -121,7 +121,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             deviceId.classList.add('device-subject-data');
             
             const status = document.createElement('div');
-            deviceId.textContent = item.device_status;
+            status.textContent = item.device_status;
+            status.classList.add('device-subject-data', 'device-status');
 
             const name = document.createElement('div');
             name.textContent = noSubject ? '' : item.name;
@@ -136,8 +137,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             createdAt.textContent = noSubject ? '' : new Date(item.created_at).toLocaleString();
             createdAt.classList.add('device-subject-data');
 
-            const setSubjectButtonContainer = document.createElement('div');
-            setSubjectButtonContainer.classList.add('set-subject-btn-container');
+            const actionButtenContainer = document.createElement('div');
+            actionButtenContainer.classList.add('action-btn-container');
 
             const setSubjectButton = document.createElement('button');
             setSubjectButton.textContent = 'Atur Subyek';
@@ -174,6 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         setModal.classList.add('hidden');
                         if (data.status) {
                             alert('Subyek berhasil dipasangkan');
+                            window.location.reload();
                         } else {
                             alert('Gagal memasangkan subyek..' + data.message);
                         }
@@ -185,16 +187,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 setModal.appendChild(setBtn);
             });
-            
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'hapus perangkat'; // atau pakai icon lain
+            deleteBtn.classList.add('delete-device-btn');
+            deleteBtn.title = 'Hapus perangkat';
+
+            // Event untuk menghapus device
+            deleteBtn.addEventListener('click', async () => {
+                const confirmed = confirm(`Yakin ingin menghapus device ${dId}?`);
+                if (!confirmed) return;
+
+                try {
+                    const res = await fetch(`/api/devices/${dId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await res.json();
+
+                    if (result.status) {
+                        alert('Device berhasil dihapus!');
+                        row.remove(); // Hapus dari tampilan
+                    } else {
+                        alert('Gagal menghapus device: ' + result.message);
+                    }
+                } catch (err) {
+                    console.error('Gagal menghapus device: ', err);
+                    alert('Terjadi kesalahan saat menghapus device.');
+                }
+            });
+
             rowData.appendChild(deviceId);
             rowData.appendChild(status);
             rowData.appendChild(name);
             rowData.appendChild(isFatigued);
             rowData.appendChild(createdAt);
-            setSubjectButtonContainer.appendChild(setSubjectButton);
+            actionButtenContainer.appendChild(setSubjectButton);
+            actionButtenContainer.appendChild(deleteBtn);
             
             row.appendChild(rowData);
-            row.appendChild(setSubjectButtonContainer);
+            row.appendChild(actionButtenContainer);
+   
+
 
             dsList.appendChild(row);
         });
@@ -205,5 +238,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('refresh-btn').addEventListener('click', () => {
         window.location.reload();
     });
+
+    
     
 });
