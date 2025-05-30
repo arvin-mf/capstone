@@ -11,10 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 )
 
-func StartEngine(e *gin.Engine, db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client) {
-	sh, dh, subscs := initHandler(db, ic, mc)
+func StartEngine(e *gin.Engine, db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client, rc *redis.Client) {
+	sh, dh, subscs := initHandler(db, ic, mc, rc)
 	go subscs.SubscribePeriodicData()
 	go subscs.SubscribePerpetualData()
 	go subscs.SubscribeStatusData()
@@ -26,10 +27,10 @@ func route(r *gin.Engine, sh *handler.SubjectHandler, dh *handler.DeviceHandler)
 	webRoute(r)
 }
 
-func initHandler(db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client) (*handler.SubjectHandler, *handler.DeviceHandler, service.SubscribeService) {
+func initHandler(db *sqlx.DB, ic influxdb2.Client, mc mqtt.Client, rc *redis.Client) (*handler.SubjectHandler, *handler.DeviceHandler, service.SubscribeService) {
 	var (
 		subjectRepo = repository.NewSubjectRepository(db)
-		deviceRepo  = repository.NewDeviceRepository(db)
+		deviceRepo  = repository.NewDeviceRepository(db, rc)
 		influxRepo  = repository.NewInfluxRepository(
 			ic,
 			config.GetEnv("INFLUXDB_ORG", ""),
