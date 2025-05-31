@@ -40,8 +40,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                 createdAt.textContent = new Date(subject.created_at).toLocaleString();
                 createdAt.classList.add('subject-data');
 
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.classList.add('delete-subject-btn');
+                deleteBtn.title = 'Hapus subject ini';
+                
+                deleteBtn.addEventListener('click', async () => {
+                    const confirmed = confirm(`Yakin ingin menghapus subyek "${subject.name}"?`);
+                    if (!confirmed) return;
+            
+                    try {
+                        const res = await fetch(`/api/subjects/${subject.id}`, {
+                            method: 'DELETE'
+                        });
+                        const result = await res.json();
+            
+                        if (result.status) {
+                            alert('Subyek berhasil dihapus!');
+                            s.remove(); // Hapus dari list modal
+            
+                            const options = document.querySelectorAll('#set-subject option');
+                            options.forEach(opt => {
+                                if (parseInt(opt.value) === subject.id) {
+                                    opt.remove();
+                                }
+                            });
+            
+                        } else {
+                            alert('Gagal menghapus subyek: ' + result.message);
+                        }
+                    } catch (err) {
+                        console.error('Gagal menghapus subyek: ', err);
+                        alert('Terjadi kesalahan saat menghapus subyek.');
+                    }
+                });
+
                 s.appendChild(name);
                 s.appendChild(createdAt);
+                s.appendChild(deleteBtn);
 
                 list.appendChild(s);
             });

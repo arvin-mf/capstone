@@ -368,3 +368,21 @@
     transform: scale(0.98);
   }
   
+  .delete-subject-btn {
+    margin-left: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    background-color: white;
+    color: red;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .delete-subject-btn:hover {
+    background-color: white;
+    border-color: red;
+  }
+  
