@@ -48,6 +48,29 @@ func TestSubjectOperations(t *testing.T) {
 		if subjects[0].ID != subjectID {
 			t.Errorf("Expected ID %d, got %d", subject.ID, subjects[0].ID)
 		}
+		if subjects[0].IsFatigued || subjects[1].IsFatigued {
+			t.Error("Expected IsFatigued to be false, but found true")
+		}
+	})
+
+	t.Run("UpdateSubjectFatiguedStatus", func(t *testing.T) {
+		subjectToUpdate := Subject{
+			ID:         subjectID,
+			IsFatigued: true,
+		}
+
+		_, err := subjectRepo.UpdateSubjectFatiguedStatus(ctx, subjectToUpdate)
+		if err != nil {
+			t.Fatalf("Failed to update subject fatigued status: %v", err)
+		}
+
+		subjects, err := subjectRepo.FindSubjects(ctx)
+		if err != nil {
+			t.Errorf("Failed to find subjects after update: %v", err)
+		}
+		if !subjects[0].IsFatigued {
+			t.Errorf("Expected subject with ID %d to be fatigued, but it is not", subjectID)
+		}
 	})
 
 	t.Run("DeleteSubject", func(t *testing.T) {

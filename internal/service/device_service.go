@@ -6,8 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"sync"
-	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type DeviceService interface {
@@ -78,16 +80,22 @@ func (s *deviceService) GetDevicesWithSubject(ctx context.Context) ([]dto.Device
 			defer wg.Done()
 
 			if d.DeviceStatus {
-				if time.Since(d.UpdatedAt) > 2*time.Second {
-					_, err = s.deviceRepo.UpdateDeviceStatus(ctx, repository.Device{
-						ID:           d.DeviceID,
-						DeviceStatus: false,
-					})
-					if err != nil {
+				key := "device-" + strconv.Itoa(int(d.DeviceID))
+				_, err := s.deviceRepo.GetDeviceStatusFromRedis(ctx, key)
+				if err != nil {
+					if !errors.Is(err, redis.Nil) {
 						errChan <- err
+						return
+					} else {
+						_, er := s.deviceRepo.UpdateDeviceStatus(ctx, repository.Device{
+							ID:           d.DeviceID,
+							DeviceStatus: false,
+						})
+						if er != nil {
+							errChan <- err
+							return
+						}
 					}
-
-					d.DeviceStatus = false
 				}
 			}
 		}(&deviceCopy)

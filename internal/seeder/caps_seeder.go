@@ -12,13 +12,10 @@ import (
 func main() {
 	config.LoadEnv()
 
-	db, err := config.InitDB()
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := config.InitDB()
 	defer db.Close()
 
-	deviceRepo := repository.NewDeviceRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 
 	deviceClients := []string{"c8:2e:18:26:65:90"}
 

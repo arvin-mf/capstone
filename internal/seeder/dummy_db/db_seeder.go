@@ -12,14 +12,11 @@ import (
 func main() {
 	config.LoadEnv()
 
-	db, err := config.InitDB()
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := config.InitDB()
 	defer db.Close()
 
 	subjectRepo := repository.NewSubjectRepository(db)
-	deviceRepo := repository.NewDeviceRepository(db)
+	deviceRepo := repository.NewDeviceRepository(db, nil)
 
 	subjectNames := []string{"John Doe", "M. John", "A. John"}
 	deviceClientNames := []string{"aa:aa:aa:aa:aa:aa", "bb:bb:bb:bb:bb:bb", "cc:cc:cc:cc:cc:cc"}

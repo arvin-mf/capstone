@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 )
 
 type DeviceRepository interface {
@@ -19,15 +20,19 @@ type DeviceRepository interface {
 	SetDeviceSubject(ctx context.Context, params SetDeviceSubjectParam) (sql.Result, error)
 	RemoveDeviceSubject(ctx context.Context, dID int64) (sql.Result, error)
 	UpdateDeviceStatus(ctx context.Context, params Device) (sql.Result, error)
+	SetDeviceStatusToRedis(ctx context.Context, key, value string) error
+	GetDeviceStatusFromRedis(ctx context.Context, key string) (string, error)
 }
 
 type deviceRepository struct {
-	db *sqlx.DB
+	db    *sqlx.DB
+	redis *redis.Client
 }
 
-func NewDeviceRepository(db *sqlx.DB) DeviceRepository {
+func NewDeviceRepository(db *sqlx.DB, rc *redis.Client) DeviceRepository {
 	return &deviceRepository{
-		db: db,
+		db:    db,
+		redis: rc,
 	}
 }
 
@@ -154,7 +159,7 @@ func (r *deviceRepository) RemoveDeviceSubject(ctx context.Context, dID int64) (
 	return result, nil
 }
 
-const updateDeviceStatus = `UPDATE devices SET status = :status, updated_at = NOW() WHERE id = :id`
+const updateDeviceStatus = `UPDATE devices SET status = :status WHERE id = :id`
 
 func (r *deviceRepository) UpdateDeviceStatus(ctx context.Context, params Device) (sql.Result, error) {
 	result, err := r.db.NamedExec(updateDeviceStatus, params)
@@ -162,4 +167,19 @@ func (r *deviceRepository) UpdateDeviceStatus(ctx context.Context, params Device
 		return nil, err
 	}
 	return result, nil
+}
+
+func (r *deviceRepository) SetDeviceStatusToRedis(ctx context.Context, key, value string) error {
+	if err := r.redis.Set(ctx, key, value, 10*time.Second).Err(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *deviceRepository) GetDeviceStatusFromRedis(ctx context.Context, key string) (string, error) {
+	value, err := r.redis.Get(ctx, key).Result()
+	if err != nil {
+		return "", err
+	}
+	return value, nil
 }

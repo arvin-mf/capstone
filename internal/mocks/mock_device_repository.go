@@ -51,3 +51,13 @@ func (m *MockDeviceRepository) UpdateDeviceStatus(ctx context.Context, params re
 	args := m.Called(ctx, params)
 	return args.Get(0).(sql.Result), args.Error(1)
 }
+
+func (m *MockDeviceRepository) SetDeviceStatusToRedis(ctx context.Context, key, value string) error {
+	args := m.Called(ctx, key, value)
+	return args.Error(0)
+}
+
+func (m *MockDeviceRepository) GetDeviceStatusFromRedis(ctx context.Context, key string) (string, error) {
+	args := m.Called(ctx, key)
+	return args.Get(0).(string), args.Error(1)
+}

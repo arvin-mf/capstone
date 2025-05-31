@@ -3,7 +3,6 @@ package main
 import (
 	"caps_influx/config"
 	"caps_influx/internal/server"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,10 +10,7 @@ import (
 func main() {
 	config.LoadEnv()
 
-	db, err := config.InitDB()
-	if err != nil {
-		log.Fatal(err)
-	}
+	db := config.InitDB()
 	defer db.Close()
 
 	influxClient := config.InitInflux()
@@ -23,9 +19,12 @@ func main() {
 	mqttClient := config.InitMQTTClient()
 	defer mqttClient.Disconnect(250)
 
+	redisClient := config.InitRedis()
+	defer redisClient.Close()
+
 	eng := gin.Default()
 
-	server.StartEngine(eng, db, influxClient, mqttClient)
+	server.StartEngine(eng, db, influxClient, mqttClient, redisClient)
 
 	port := config.GetEnv("APP_PORT", "")
 	eng.Run(":" + port)

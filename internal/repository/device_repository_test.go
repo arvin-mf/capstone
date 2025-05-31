@@ -64,6 +64,25 @@ func TestDeviceOperations(t *testing.T) {
 		}
 	})
 
+	t.Run("UpdateDeviceStatus", func(t *testing.T) {
+		deviceToUpdate := Device{
+			ID:           id,
+			DeviceStatus: true,
+		}
+		_, err := deviceRepo.UpdateDeviceStatus(ctx, deviceToUpdate)
+		if err != nil {
+			t.Fatalf("Failed to update device status: %v", err)
+		}
+
+		devices, err := deviceRepo.FindDevices(ctx)
+		if err != nil {
+			t.Fatalf("Failed to find devices after status update: %v", err)
+		}
+		if !devices[0].DeviceStatus {
+			t.Errorf("Expected device status to be true, got %t", devices[0].DeviceStatus)
+		}
+	})
+
 	t.Run("DeleteDevice", func(t *testing.T) {
 		deviceToDelete := Device{
 			ID: id,

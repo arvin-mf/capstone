@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -73,12 +74,22 @@ func (s *subscribeService) updateDeviceStatus(m mqtt.Message) {
 	}
 
 	if device != nil {
-		_, err = s.deviceRepo.UpdateDeviceStatus(ctx, repository.Device{
-			ID:           device.ID,
-			DeviceStatus: req.DeviceStatus == "on",
-		})
+		if req.DeviceStatus == "on" && !device.DeviceStatus {
+			_, err = s.deviceRepo.UpdateDeviceStatus(ctx, repository.Device{
+				ID:           device.ID,
+				DeviceStatus: true,
+			})
+			if err != nil {
+				fmt.Printf("Failed to update device status: %v\n", err)
+				return
+			}
+		}
+
+		key := "device-" + strconv.Itoa(int(device.ID))
+
+		err = s.deviceRepo.SetDeviceStatusToRedis(ctx, key, "on")
 		if err != nil {
-			fmt.Printf("Failed to update device status: %v\n", err)
+			fmt.Printf("Failed to set device status to Redis: %v\n", err)
 			return
 		}
 	}
